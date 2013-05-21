@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LuaJIT-2.0.1", "LuaJIT-2.0.1\LuaJIT-2.0.1.vcxproj", "{376DDFD7-C5BC-4679-A67C-C5423300D8AF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luabind-0.9.1", "luabind-0.9.1\luabind-0.9.1.vcxproj", "{2DC5CF43-7653-4163-B5DE-DF106D78C6E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{376DDFD7-C5BC-4679-A67C-C5423300D8AF} = {376DDFD7-C5BC-4679-A67C-C5423300D8AF}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "greet1", "greet1\greet1.vcxproj", "{A399AE15-B57F-49D0-AB07-6A88058A51C3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2DC5CF43-7653-4163-B5DE-DF106D78C6E0} = {2DC5CF43-7653-4163-B5DE-DF106D78C6E0}
+		{376DDFD7-C5BC-4679-A67C-C5423300D8AF} = {376DDFD7-C5BC-4679-A67C-C5423300D8AF}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{376DDFD7-C5BC-4679-A67C-C5423300D8AF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{376DDFD7-C5BC-4679-A67C-C5423300D8AF}.Debug|Win32.Build.0 = Debug|Win32
+		{376DDFD7-C5BC-4679-A67C-C5423300D8AF}.Release|Win32.ActiveCfg = Release|Win32
+		{376DDFD7-C5BC-4679-A67C-C5423300D8AF}.Release|Win32.Build.0 = Release|Win32
+		{2DC5CF43-7653-4163-B5DE-DF106D78C6E0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2DC5CF43-7653-4163-B5DE-DF106D78C6E0}.Debug|Win32.Build.0 = Debug|Win32
+		{2DC5CF43-7653-4163-B5DE-DF106D78C6E0}.Release|Win32.ActiveCfg = Release|Win32
+		{2DC5CF43-7653-4163-B5DE-DF106D78C6E0}.Release|Win32.Build.0 = Release|Win32
+		{A399AE15-B57F-49D0-AB07-6A88058A51C3}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A399AE15-B57F-49D0-AB07-6A88058A51C3}.Debug|Win32.Build.0 = Debug|Win32
+		{A399AE15-B57F-49D0-AB07-6A88058A51C3}.Release|Win32.ActiveCfg = Release|Win32
+		{A399AE15-B57F-49D0-AB07-6A88058A51C3}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
