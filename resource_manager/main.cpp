@@ -14,120 +14,203 @@ extern "C"
 #include <luabind/operator.hpp>
 #include <luabind/object.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include <utility>
 // We don't want to write std:: every time we're displaying some debug output
 using namespace std;
 
-// --------------------------------------------------------------------------------------------- //
+using namespace luabind;
+/*
+int test_object_param(const object& table)
+{
+	LUABIND_CHECK_STACK(table.interpreter());
 
-struct ResourceManager {
-	ResourceManager() :
-		m_ResourceCount(0) {}
-	 
-	void loadResource(const string &sFilename) {
-		++m_ResourceCount;
-	}
-	
-	size_t getResourceCount() const {
-		return m_ResourceCount;
-	}
-	 
-	size_t m_ResourceCount;
-};
+	object current_object;
+	current_object = table;
+	lua_State* L = table.interpreter();
 
-class NumberPrinter {
-public:
-	NumberPrinter(int number) :
-		m_number(number) {}
-	 
-	void print() {
-		cout << m_number << endl;
-	}
-	 
-private:
-	int m_number;
-};
+	if (type(table) == LUA_TTABLE)
+	{
+		int sum1 = 0;
+		for (luabind::iterator i(table), e; i != e; ++i)
+		{
+			assert(type(*i) == LUA_TNUMBER);
+			sum1 += object_cast<int>(*i);
+		}
 
-void print_hello(int number) {
-cout << "Printing [" << number << "]" << endl;
+		int sum2 = 0;
+		for (raw_iterator i(table), e; i != e; ++i)
+		{
+			assert(type(*i) == LUA_TNUMBER);
+			sum2 += object_cast<int>(*i);
+		}
+
+		// test iteration of empty table
+		object empty_table = newtable(L);
+		for (luabind::iterator i(empty_table), e; i != e; ++i)
+		{}
+		
+		table["sum1"] = sum1;
+		table["sum2"] = sum2;
+		table["blurp"] = 5;
+		table["sum3"] = table["sum1"];
+		return 0;
+	}
+	else
+	{
+		if (type(table) != LUA_TNIL)
+		{
+			return 1;
+		}
+		else
+		{
+			return 2;
+		}
+	}
 }
- 
+*/
+
+#define DOSTRING(state_, str)                   \
+{                                               \
+    try                                         \
+    {                                           \
+        dostring(state_, str);                  \
+    }                                           \
+    catch (luabind::error const& e)             \
+    {                                           \
+        TEST_ERROR(lua_tostring(e.state(), -1)); \
+            lua_pop(L, 1);                      \
+    }                                           \
+    catch (std::string const& s)                \
+    {                                           \
+        TEST_ERROR(s.c_str());                  \
+    }                                           \
+}
+
+#define TEST_REPORT_AUX(x, line, file) \
+	report_failure(x, line, file)
+
+#define TEST_CHECK(x) \
+    if (!(x)) \
+        TEST_REPORT_AUX("TEST_CHECK failed: \"" #x "\"", __FILE__, __LINE__)
+
+#define TEST_ERROR(x) \
+	TEST_REPORT_AUX((std::string("ERROR: \"") + x + "\"").c_str(), __FILE__, __LINE__)
+
+#define TEST_CHECK(x) \
+    if (!(x)) \
+        TEST_REPORT_AUX("TEST_CHECK failed: \"" #x "\"", __FILE__, __LINE__)
+
+#define TEST_ERROR(x) \
+	TEST_REPORT_AUX((std::string("ERROR: \"") + x + "\"").c_str(), __FILE__, __LINE__)
+
+#define TEST_NOTHROW(x) \
+	try \
+	{ \
+		x; \
+	} \
+	catch (...) \
+	{ \
+		TEST_ERROR("Exception thrown: " #x); \
+	}
+
+void report_failure(char const* err, char const* file, int line)
+{
+	std::cerr << file << ":" << line << "\"" << err << "\"\n";
+}
+
+bool dostring(lua_State* L, const char* str)
+{
+	if (luaL_loadbuffer(L, str, std::strlen(str), str) || lua_pcall(L, 0, 0, 0))
+	{
+		const char* a = lua_tostring(L, -1);
+		std::cout << a << "\n";
+		lua_pop(L, 1);
+		return true;
+	}
+	return false;
+}
+
+struct CppClass
+{
+    int f()
+    {
+        return 1;
+    }
+};
+
+template<class T>
+struct counted_type
+{
+    static int count;
+    
+    counted_type()
+    {
+        ++count;
+    }
+
+    counted_type(counted_type const&)
+    {
+        ++count;
+    }
+
+    ~counted_type()
+    {
+        TEST_CHECK(--count >= 0);
+    }
+};
+
+template<class T>
+int counted_type<T>::count = 0;
+
+struct test_param : counted_type<test_param>
+{
+	luabind::object obj;
+	luabind::object obj2;
+
+	bool operator==(test_param const& rhs) const
+	{ return obj == rhs.obj && obj2 == rhs.obj2; }
+
+	int f(int x)
+    {
+        return x;
+    }
+};
+
+using namespace luabind;
+
 int main() {
 	// Create a new lua state
-	lua_State *myLuaState = lua_open();
-	 
+	lua_State *L = lua_open();
+	luaL_openlibs(L); 
 	// Connect LuaBind to this lua state
-	luabind::open(myLuaState);
+	luabind::open(L);
 	 
-	// Add our function to the state's global scope
-	luabind::module(myLuaState) [
-		luabind::def("print_hello", print_hello)
-	];
+	module(L)
+	[
+        class_<CppClass>("CppClass")
+          .def(constructor<>())
+          .def("f", &CppClass::f)
+    ];
 
-	// Export our classes with LuaBind
-	luabind::module(myLuaState) [
-		luabind::class_<NumberPrinter>("NumberPrinter")
-		.def(luabind::constructor<int>())
-		.def("print", &NumberPrinter::print)
-	];
 
-	luabind::module(myLuaState) [
-		luabind::class_<ResourceManager>("ResourceManager")
-		.def("loadResource", &ResourceManager::loadResource)
-		.property("ResourceCount", &ResourceManager::getResourceCount)
-	];
+    DOSTRING(L,
+        "x = CppClass()\n"
+        "y = CppClass()\n"
+    );
 
-	 
-	//Test 1) Just call a global C++ function
-	luaL_dostring(myLuaState, "print_hello(1337)\n"); //Inline LUA Script
-	luaL_dofile(myLuaState, "test.lua"); //Or from a file
+	{
+    
+	object a = globals(L)["x"];
+	TEST_CHECK(call_member<int>(a, "f"));
 
-	//Test 2) Create a C++ Class (NumberPrinter) and perform a member function.
-	luaL_dostring(
-		myLuaState,
-		"Print2000 = NumberPrinter(2000)\n"
-		"Print2000:print()\n"
-	);
+	a = globals(L)["y"];
+	TEST_CHECK(call_member<int>(a, "f"));
 
-	//Test 3) ResourceManager
-	try {
-		ResourceManager MyResourceManager;
-		 
-		// Assign MyResourceManager to a global in lua
-		luabind::globals(myLuaState)["MyResourceManager"] = &MyResourceManager;
-		 
-		// Execute a script to load some resources
-		luaL_dostring(
-			myLuaState,
-			"MyResourceManager:loadResource(\"abc.res\")\n"
-			"MyResourceManager:loadResource(\"xyz.res\")\n"
-			"\n"
-			"ResourceCount = MyResourceManager.ResourceCount\n"
-		);
-		 
-		// Read a global from the lua script
-		size_t ResourceCount = luabind::object_cast<size_t>(
-			luabind::globals(myLuaState)["ResourceCount"]
-		);
-		cout << "# of Resources: " << ResourceCount << endl;
-	}
-		catch(const std::exception &theProblemIs) {
-		cerr << theProblemIs.what() << endl;
+	LUABIND_CHECK_STACK(L);
+
 	}
 
-
-
-	//Call Lua Function from C++.
-	// Define a lua function that we can call
-	luaL_dostring(
-		myLuaState,
-		"function add(first, second)\n"
-		"  return first + second\n"
-		"end\n"
-	);
-	 
-	cout << "Result: "
-		<< luabind::call_function<int>(myLuaState, "add", 2, 3)
-		<< endl;
-
-	lua_close(myLuaState);
+	lua_close(L);
 }
