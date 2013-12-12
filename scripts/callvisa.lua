@@ -25,7 +25,8 @@ local ret = visa.viOpenDefaultRM(visession)
 print (visession)
 print (ret)
 
-str = 'USB0::0x1AB1::0x0960::DSA8A134700019::INSTR'
+--str = 'USB0::0x1AB1::0x0960::DSA8A134700019::INSTR'
+str = 'USB0::0x0699::0x0401::C020189::INSTR'
 psa = ffi.new('char [?]', #str+1, str)
 
 print (visession[0])
