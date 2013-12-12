@@ -18,17 +18,12 @@ int main()
 
     try
     {
-        
-		lua_State *L = luaL_newstate();
- 
-		// Connect LuaBind to this lua state
-		luabind::open(L);
-
-	   luaL_openlibs(L);
-       luabind::open(L);
-
-        lua_close(myLuaState);
-
+        lua_State *L = luaL_newstate();
+        // Connect LuaBind to this lua state
+        luabind::open(L);
+        luaL_openlibs(L);
+        luabind::open(L);
+        lua_close(L);
     }
     catch (const luabind::error &er)
 	{

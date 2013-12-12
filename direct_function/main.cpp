@@ -79,6 +79,22 @@ struct X
     }
 };
 
+struct Foo
+{
+    static std::size_t count;
+
+    Foo()
+    {
+        ++count;
+    }
+
+    ~Foo()
+    {
+        --count;
+    }
+};
+
+std::size_t Foo::count = 0;
 
 int main()
 {
@@ -93,8 +109,22 @@ int main()
 
         class_<X>("X")
             .def(constructor<>())
-            .def("f", tag_function<int(X&, int)>(boost::bind(&X::f, _1, 10, _2)))
+            .def("f", tag_function<int(X&, int)>(boost::bind(&X::f, _1, 10, _2))),
+        
+        class_<Foo>("Foo")
+          .def(constructor<>())
     ];
+
+    DOSTRING(L,
+        "class 'Bar' (Foo)\n"
+        "function Bar.__init(self)\n"
+        "  Foo.__init(self)\n"
+        "end\n"
+    );
+
+    DOSTRING(L,
+        "x = Bar()\n"
+    );
 
     DOSTRING(L,
         "assert(f(0) == 5)\n"
