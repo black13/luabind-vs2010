@@ -50,17 +50,22 @@ function visa_class:write(command)
 	return ret
 end
 
---[[
-function visa_class:read(n)
+--similar to pyvisa 'ask'
+function visa_class:ask(command)
 	local ret = {}
+	
+	local id = ffi.new('char [?]', #command+1, command)
 	local count     = ffi.new("uint32_t[1]")
-	local buf       = ffi.new('uint8_t [?]',n)
-	ret.ret = visa.viRead(self.visa_handle[0],buf,n,count);
-	ret.buf = buf
+	ret.ret = visa.viWrite(self.visa_handle[0],id,#command,count)
+
+	local count     = ffi.new("uint32_t[1]")
+	local buf       = ffi.new('uint8_t [?]',256)
+	ret.ret = visa.viRead(self.visa_handle[0],buf,256,count);
+	ret.value = ffi.string(buf)
 	ret.count = count
 	return ret
 end
---]]
+
 
 function visa_class:read(buff,n)
 	local ret = {}
