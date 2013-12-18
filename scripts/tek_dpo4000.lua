@@ -36,11 +36,12 @@ end
 
 function tek_dpo4000:bus_init()
 	self.device:write("*RST")
-	
+	sleep(3000)
 	self.device:write(":MEASU:IMM:SOUrce1")
 	self.device:write("HEADER OFF")
 	self.device:write("AUTOSET EXEC")
-	self.device:write("HOR:REC 1000")
+	self.device:write("HOR:RECO 1000")
+	sleep(3000)
 	--[[
 	if (Write(inst,"*RST")) return(TRUE);
 		DoDelay(3000);
@@ -96,20 +97,26 @@ function tek_dpo4000:trace(setting)
 	buff   = ffi.new("uint8_t[256]")
 	ret=self.device:read(buff,256)
 	str = ffi.string(buff)
-	print(str)
-	self.device:write(":DAT:SOU CH1")
+	--print(str)
+	-- The DATa:SOUrce command specifies the waveform source when transferring a
+	-- waveform from the oscilloscope.
+	self.device:write(":DAT:SOU " .. string.format("%d",setting.channel))
+	
+	self.device:write("DATA:START 1")
+    
+    self.device:write("DATA:STOP 1000")
 	
 	--print(ret.value)
 	
-	self.device:write("HOR:SCAl 2.0e-9")
+	--self.device:write("HOR:SCAl 2.0e-9")
 	
 	--self.device:write("HOR:SCAl 2.0e-9") --set time scale to 2.0 n seconds
 	
-	self.device:write("WFMInpre:PT_Fmt ENV")
+	--self.device:write("WFMInpre:PT_Fmt ENV")
 	
 	ret = self.device:ask('WFMInpre:NR_Pt?')
 	local points = tonumber(ret.value)
-	print(points)
+	--print(points)
 	ret = self.device:ask('WFMPRE:YMULT?')
 	local ymult = tonumber(ret.value)
 	
@@ -122,17 +129,53 @@ function tek_dpo4000:trace(setting)
 	ret = self.device:ask('WFMPRE:XINCR?')
 	local xincr = tonumber(ret.value)
 	
-	self.device:write("CURVE?")
-	 
-	curve   = ffi.new("uint8_t[1024]") 
-	--ret=self.device:read(curve,1024)
-	--print(tonumber(ret.count[0]))
+	ret = self.device:write("DATA:WIDTH 1")
 	
+	--ret = self.device:write("DATA:ENCDG RIB")
+	ret = self.device:write("DATA:ENCDG FAS")
+	self.device:write("CURVE?")
+	
+	--preamble #bb 
+	local preamble  = ffi.new("uint8_t[2]") 
+	
+	ret=self.device:read(preamble,2)
+	--print (ret.ret)
+	
+	str = ffi.string(preamble)
+	--print(str)
+	local byte_count=tonumber(str:sub(2))
+	--print(byte_count)
+	local bytes=ffi.new("int8_t[?]",byte_count+1) 
+	
+	ret=self.device:read(bytes,byte_count)
+	str = ffi.string(bytes)
+	
+	curve_bytes = tonumber(str)
+	--print (tonumber(str))
+	
+	curve   = ffi.new("int8_t[?]",curve_bytes) 
+	ret=self.device:read(curve,curve_bytes)
+	
+	for i = 0 , curve_bytes - 1 do
+		intermediate = tonumber(curve[i]) * 1.0
+		intermediate = intermediate - yoff
+		intermediate = intermediate * ymult
+		intermediate = intermediate + yzero
+		
+		print( intermediate) 
+	end
+	
+	
+		
+	--[[
+	
+
 	repeat 
+	
 		ret=self.device:read(curve,1024)
 		for k,v in next, string.split(ffi.string(curve), ',') do print(v) end
 	until ret.count[0] < 1024
-	
+	--]]
 	--print(inspect(ret))
 	--[[
 	--from python
