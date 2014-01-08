@@ -37,6 +37,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qlua", "qlua\qlua.vcxproj",
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qluatest", "qluatest\qluatest.vcxproj", "{81F4D683-FC4B-401D-98C7-AD38EEDC0B8A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qluavectortest", "qluavectortest\qluavectortest.vcxproj", "{2B4692B5-EE20-4615-A8FE-58319F9805AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -117,6 +119,14 @@ Global
 		{81F4D683-FC4B-401D-98C7-AD38EEDC0B8A}.Release|Win32.Build.0 = Release|Win32
 		{81F4D683-FC4B-401D-98C7-AD38EEDC0B8A}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
 		{81F4D683-FC4B-401D-98C7-AD38EEDC0B8A}.RelWithDebInfo|Win32.Build.0 = Release|Win32
+		{2B4692B5-EE20-4615-A8FE-58319F9805AF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2B4692B5-EE20-4615-A8FE-58319F9805AF}.Debug|Win32.Build.0 = Debug|Win32
+		{2B4692B5-EE20-4615-A8FE-58319F9805AF}.MinSizeRel|Win32.ActiveCfg = Release|Win32
+		{2B4692B5-EE20-4615-A8FE-58319F9805AF}.MinSizeRel|Win32.Build.0 = Release|Win32
+		{2B4692B5-EE20-4615-A8FE-58319F9805AF}.Release|Win32.ActiveCfg = Release|Win32
+		{2B4692B5-EE20-4615-A8FE-58319F9805AF}.Release|Win32.Build.0 = Release|Win32
+		{2B4692B5-EE20-4615-A8FE-58319F9805AF}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
+		{2B4692B5-EE20-4615-A8FE-58319F9805AF}.RelWithDebInfo|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

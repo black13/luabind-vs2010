@@ -2,6 +2,8 @@
 
 --]]
 local ffi = require("ffi")
+local math = require("math")
+local inspect = require("inspect")
 ffi.cdef[[
 void Sleep(int ms);
 ]]
@@ -85,8 +87,95 @@ function string:split(sSeparator, nMax, bRegexp)
 	return aRecord
 end
 
-function tek_dpo4000:readpt(setting)
 
+function tek_dpo4000:readpt(setting)
+	local setting = setting or {channel=1,type = 'amp'}
+	local ret=nil
+	buff   = ffi.new("uint8_t[256]")
+	self.device:write(string.format("DATA:SOUR %d",setting.channel))
+	self.device:write(string.format("MEASU:MEAS%d:TYP %s",setting.channel,setting.type))
+	self.device:write(string.format("MEASU:MEAS%d:STATE ON",setting.channel))
+	--self.device:write(string.format("MEASU:MEAS%d:VAL?",setting.channel))
+	ret = self.device:ask(string.format("MEASU:MEAS%d:VAL?",setting.channel))
+	--print(ret.value)
+	
+end
+-- return an amplitude value but auto range device while collecting measurments.
+function tek_dpo4000:powerset(setting)
+	local setting = setting or {channel=1}
+	local vertical_ranges   = {1.0E-3,2.0E-3,5.0E-3,10.0E-3,20.0E-3,50.0E-3,100.0E-3,200.0E-3,500.0E-3,1.0,2.0,5.0}
+	local horizontal_ranges = {1.0,2.0,5.0,10.0};
+	--trigger level to 0.00 volts.
+	--self.device:write("TRIG:A SETL 0")
+	self.device:write(string.format('TRIGger:A:LEVel:CH%d 0.0',setting.channel))
+	--cmd.Format("DATA:SOUR %d",channel_set);
+	
+	ret = self.device:ask('TRIGger:EXTernal:PRObe?')
+	local atten = tonumber(ret.value)
+	--print(atten)
+
+	ret = self.device:write(string.format("MEASU:MEAS%d:TYP PK2P",setting.channel))
+	
+	ret = self.device:write(string.format("MEASU:MEAS%d:STATE ON",setting.channel))
+	
+	sleep(100)
+	ret = self.device:ask(string.format('MEASU:MEAS%d:VAL?',setting.channel))
+	local peak = tonumber(ret.value)
+	print(peak)
+	
+	local range=peak/6.0
+	
+	if range <= vertical_ranges[1] then
+		range = vertical_ranges[1]
+	else
+		for i = 1, 12 ,1  do
+			if vertical_ranges[i] < range and range <= vertical_ranges[i+1] then
+			
+				range=vertical_ranges[i+1];
+				break;
+			
+			end
+		end
+	end
+	
+	ret = self.device:write(string.format("CH%d:SCA %f",setting.channel,range))
+	time_div = 1.0/setting.frequency
+	print (string.format("HORIZONTAL:SCALE %.2e",time_div))
+	ret = self.device:write(string.format("HORIZONTAL:SCALE %.2e",time_div))
+	
+	
+	--print(inspect(setting))
+	--print(type(setting.frequency))
+	
+	--ret = self.device:write(string.format("REF%d:HORizontal:SCAle %f",setting.channel,))
+	--local logtime = math.log10(3.0/setting.frequency)
+	--local logfreq = math.log10( setting.frequency)
+	--local exponent = math.floor(logfreq)
+	--print(logfreq)
+	--print(exponent)
+	
+    --local logmantissa = logfreq-exponent*1.0;
+	--print(logmantissa)
+    --local mantissa = math.pow(10.0,logmantissa)
+	--print (mantissa)
+	
+	--exponent = exponent - 1.0;
+	--range = mantissa*10.0 * math.pow(10.0,exponent-1)
+	
+	
+	--[[
+	if range <= horizontal_ranges[1]  then
+		range = horizontal_ranges[1]
+	else
+		for i = 1, 12 do
+			if horizontal_ranges[i] < range and range <= horizontal_ranges[i] then
+				range=horizontal_ranges[i]
+				break
+			end
+		end
+	end
+	-]]
+	print (range)
 end
 
 function tek_dpo4000:trace(setting)
@@ -129,20 +218,22 @@ function tek_dpo4000:trace(setting)
 	ret = self.device:ask('WFMPRE:XINCR?')
 	local xincr = tonumber(ret.value)
 	
-	ret = self.device:write("DATA:WIDTH 1")
+	--ret = self.device:write("DATA:WIDTH 1")
 	
-	--ret = self.device:write("DATA:ENCDG RIB")
-	ret = self.device:write("DATA:ENCDG FAS")
+	ret = self.device:write("DATA:ENCDG RIB")
+	--ret = self.device:write("DATA:ENCDG FAS")
 	self.device:write("CURVE?")
 	
 	--preamble #bb 
 	local preamble  = ffi.new("uint8_t[2]") 
 	
 	ret=self.device:read(preamble,2)
-	--print (ret.ret)
+	print (ret.ret)
 	
 	str = ffi.string(preamble)
-	--print(str)
+	print(str)
+	
+	--[[
 	local byte_count=tonumber(str:sub(2))
 	--print(byte_count)
 	local bytes=ffi.new("int8_t[?]",byte_count+1) 
@@ -165,7 +256,7 @@ function tek_dpo4000:trace(setting)
 		print( intermediate) 
 	end
 	
-	
+	--]]
 		
 	--[[
 	
