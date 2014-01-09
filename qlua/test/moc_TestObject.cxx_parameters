@@ -1,0 +1,12 @@
+-IC:/Qt/4.8.5/include
+-IC:/Qt/4.8.5/include/QtGui
+-IC:/Qt/4.8.5/include/QtCore
+-IC:/Users/jjosburn/Documents/programming/luabind-vs2010/qlua/./LuaJIT-2.0.1/src
+-IC:/Qt/4.8.5/include
+-DQT_DLL
+-DQT_GUI_LIB
+-DQT_CORE_LIB
+-DWIN32
+-o
+C:/Users/jjosburn/Documents/programming/luabind-vs2010/qlua/test/moc_TestObject.cxx
+C:/Users/jjosburn/Documents/programming/luabind-vs2010/qlua/test/TestObject.h

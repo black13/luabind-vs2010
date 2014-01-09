@@ -50,11 +50,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\LuaJIT-2.0.1\src;$(SolutionDir)\luabind-0.9.1\luabind;$(SolutionDir)\luabind-0.9.1;$(SolutionDir)\luabind-vs2010\boost-1.47.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\LuaJIT-2.0.1\src;$(SolutionDir)\luabind-0.9.1\luabind;$(SolutionDir)\luabind-0.9.1;$(SolutionDir)\boost-1.47.0</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;lua51.lib;luabind-0.9.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
