@@ -50,7 +50,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)LuaJIT-2.0.1\src;$(SolutionDir)luabind-0.9.1\luabind;$(SolutionDir)luabind-0.9.1;$(SolutionDir)boost-1.47.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\LuaJIT-2.0.1\src;$(SolutionDir)\luabind-0.9.1\luabind;$(SolutionDir)\luabind-0.9.1;$(SolutionDir)\boost-1.47.0</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

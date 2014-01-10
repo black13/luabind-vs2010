@@ -47,7 +47,7 @@ end
 
 function rs_esr:bus_init()
 	self.device:write("*RST")
-	self.device:write("NST REC")
+	self.device:write("INST SA")
 	
 	sleep(1000)
 end

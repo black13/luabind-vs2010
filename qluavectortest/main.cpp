@@ -5,36 +5,46 @@
 #include "LuaContext.h"
 #include <QtCore/QCoreApplication>
 
-class TestObject : public QObject {
-    Q_OBJECT
-public slots:
-    void method( const QString& msg ) {
-        std::cout << msg.toStdString() << std::endl;
-    }
-    void emitSignal( const QString& msg ) { 
-        std::cout << "emitting signal aSignal(" << msg.toStdString() << ")" << std::endl;
-        emit aSignal( msg );
-    }
-    void aSlot( const QString& msg ) { 
-        std::cout << "aSlot() called with data: " << msg.toStdString() << std::endl; 
-    }
-    QVector< float > copyFloatVector( const QVector< float >& v ) 
-	{ 
-		return v; 
-	}
+#include "vectorobject.h"
   
-signals:
-    void aSignal(const QString&);
-};
 
 int main(int argc, char *argv[])
 {
-	QCoreApplication a(argc, argv);
+	try 
+	{
+		qlua::LuaContext ctx;
 
+		VectorObject myobj3;
+		ctx.AddQObject( &myobj3, "myobj3", false, qlua::LuaContext::QOBJ_NO_DELETE );
+		/*
+		ctx.Eval( "print( myobj3.copyString( 'hi' ) );"
+		"vm = myobj3.copyVariantMap( {key1=1,key2='hello'} );" 
+		"print( vm['key1'] .. ' ' .. vm['key2'] );"
+		"print( myobj3.createObject().objectName );" );
+
+		ctx.Eval( "fl = myobj3.copyShortList( {1,2,3} );\n" 
+		"print( fl[1] .. ' ' .. fl[ 3 ] );\n" );
+		*/
+		ctx.EvalFile("C:\\Users\\jjosburn\\Documents\\programming\\luabind-vs2010\\scripts\\random_vector.lua");
+
+    } 
+	catch( const std::exception& e ) 
+	{
+        std::cerr << e.what() << std::endl;
+    }
+	/*
+	try 
+	{
 	qlua::LuaContext ctx;
         
-    TestObject myobj;
+		VectorObject myobj;
     myobj.setObjectName( "MyObject" );
-
-	return a.exec();
+		ctx.AddQObject( &myobj, "myobj", false, qlua::LuaContext::QOBJ_NO_DELETE );
+		ctx.EvalFile("C:\\Users\\jjosburn\\Documents\\programming\\luabind-vs2010\\scripts\\random_vector.lua");
+	} 
+	catch( const std::exception& e ) 
+	{
+        std::cerr << e.what() << std::endl;
+    }
+	*/
 }

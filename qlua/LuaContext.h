@@ -119,6 +119,8 @@ public:
     void Eval( const char* code ) {
         ReportErrors( luaL_dostring( L_, code ) );
     }
+	/// Evaluate Lua code.
+	void EvalFile( const char* code );
     /// @brief Add QVariantMap: Either push it on the stack or set it as global.
     /// @param vm QVariantMap
     /// @param name global name; if null value is left on the Lua stack.

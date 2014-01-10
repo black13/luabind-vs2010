@@ -66,6 +66,33 @@ LuaContext::LuaContext( lua_State* L ) : L_( L ),
     RegisterTypes();
 }
 
+void LuaContext::EvalFile( const char* filename )
+{
+	int ret;
+
+	if(ret = luaL_dofile(L_,filename))
+	{
+		puts(lua_tostring(L_, -1));
+    
+	}
+
+	ret = luaL_loadfile(L_, filename) ;
+	
+	if (ret == LUA_ERRFILE)
+	{
+		RaiseLuaError( L_, "Error loading file!" );
+		return ;
+	}
+	
+	ret = lua_pcall(L_, 0, LUA_MULTRET, 0);
+	
+	if (ret != 0 )
+	{
+		RaiseLuaError( L_, "Error evaluating file" );
+		return ;
+	}
+}
+
 //------------------------------------------------------------------------------
 void LuaContext::AddQObject( QObject* obj, 
                              const char* tableName,
