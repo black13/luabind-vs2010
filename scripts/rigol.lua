@@ -68,6 +68,45 @@ function rigol:center(cent,span)
 	self.device:write(":FREQ:SPAN "  .. format_value(span ,'HZ'))
 end
 
+function rigol:count(setting)
+	local ret = {}
+	
+	local setting = setting or {count=1,swtime=1.0}
+    
+	if type(setting.count) == nil then
+		--error("no title")
+		setting.count = 1
+	end
+	
+	if type(setting.count) == nil then
+		--error("no title")
+		setting.count = 1
+	end 
+	
+	if setting.swtime == nil then
+		setting.swtime = 1
+	end 
+	buff   = ffi.new("uint8_t[256]")
+	self.device:write(":INIT:CONT OFF")
+	self.device:write(":SWE:TIME " .. setting.swtime)
+	self.device:write(":SWE:COUN "  .. setting.count)
+	self.device:write(":INIT")
+	
+	while true do
+		self.device:write(":SWE:COUN:CURR?")
+		self.device:read(buff,256)
+		str = ffi.string(buff)
+		sleep(setting.count*100)
+		print (tonumber(str))
+		if tonumber(str) == 10 then
+			break
+		end
+		
+		
+	end
+
+end
+
 function rigol:marker()
     local ret = {}
 	

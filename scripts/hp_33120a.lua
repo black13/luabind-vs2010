@@ -58,7 +58,17 @@ function hp_33120:bus_init()
 end
 
 function hp_33120:freq(setting)
-	self.device:write("FREQ "  .. format_value(setting ,'HZ'))
+	local setting = setting or {freq=1.0e3}
+    if type(setting.freq) ~= nil then
+		--error("no title")
+		self.device:write("FREQ "  .. format_value(setting.freq ,'HZ'))
+	elseif type(setting.mod) ~= nil then
+		self.device:write("AM:INT:FUNC " .. setting.mod)
+	elseif type(setting.modfreq) ~= nil then
+		self.device:write("AM:INT:FREQ " .. format_value(setting.modfreq,'HZ'))
+    end
+	  
+	--self.device:write("FREQ "  .. format_value(setting.freq ,'HZ'))
 end
 
 function hp_33120:power(setting,unit)
