@@ -68,24 +68,70 @@ function rigol:center(cent,span)
 	self.device:write(":FREQ:SPAN "  .. format_value(span ,'HZ'))
 end
 
+function rigol:sweep(setting)
+	local ret = {}
+	
+	local setting = setting or {sweeps=1}
+	--place device in max hold.
+	self.device:write(":TRAC1:MODE MAX")
+	
+	buff   = ffi.new("uint8_t[256]")
+	self.device:write(":INIT:CONT ON")
+	self.device:write(":SWE:TIME " .. setting.swtime)
+	
+	self.device:write(":SWE:TIME?")
+	self.device:read(buff,256)
+	str = ffi.string(buff)
+	local sweetime=tonumber(str)
+		
+	--self.device:write(":SWE:COUN 1")
+	
+	
+	for steps = 1, setting.sweeps do
+		self.device:write("*OPC")
+		self.device:write(":INIT")
+		sleep(sweetime*1500)
+		self.device:write("*OPC?")
+		self.device:read(buff,256)
+		str = ffi.string(buff)
+	end
+	print ("loop is finished")
+	--[[
+	while true do
+		self.device:write(":SWE:COUN:CURR?")
+		self.device:read(buff,256)
+		str = ffi.string(buff)
+		
+		print (tonumber(str))
+		if tonumber(str) == setting.count then
+			break
+		end
+		sleep(setting.swtime*1000)
+		
+	end
+	--]]
+end
+
 function rigol:count(setting)
 	local ret = {}
 	
 	local setting = setting or {count=1,swtime=1.0}
-    
+    --[[
 	if type(setting.count) == nil then
 		--error("no title")
 		setting.count = 1
 	end
+	--]]
 	
-	if type(setting.count) == nil then
+	if setting.count == nil  or setting.count == 0 then
 		--error("no title")
 		setting.count = 1
-	end 
+	end
 	
 	if setting.swtime == nil then
 		setting.swtime = 1
-	end 
+	end
+	
 	buff   = ffi.new("uint8_t[256]")
 	self.device:write(":INIT:CONT OFF")
 	self.device:write(":SWE:TIME " .. setting.swtime)
@@ -96,12 +142,12 @@ function rigol:count(setting)
 		self.device:write(":SWE:COUN:CURR?")
 		self.device:read(buff,256)
 		str = ffi.string(buff)
-		sleep(setting.count*100)
+		
 		print (tonumber(str))
-		if tonumber(str) == 10 then
+		if tonumber(str) == setting.count then
 			break
 		end
-		
+		sleep(setting.swtime*1000)
 		
 	end
 

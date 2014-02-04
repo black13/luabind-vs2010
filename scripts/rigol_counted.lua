@@ -21,7 +21,7 @@ local siggen   = require 'hp_33120a'
 	-- 
 	siggen:bus_init()
 	
-	ana:bus_init()
+	--ana:bus_init()
 	
 	siggen:freq{freq=15e6}
 	siggen:power(-20.0,'DBM')
@@ -29,9 +29,9 @@ local siggen   = require 'hp_33120a'
 	ana:stop_freq(20.0e6)
 	ana:start_freq(1.0e6)
 	
-	buff   = ffi.new("uint8_t[256]")
+	ana:sweep{sweeps=2,swtime=10}
 	
-	local ret = ana:marker()
+	--local ret = ana:marker()
 	--[[
 	sleep(1000)
 	local start=100.0e3
@@ -48,7 +48,8 @@ local siggen   = require 'hp_33120a'
 		print(string.format(ret.value))
 	end
 	--]]
-	ana:count{count=10,swetime=1}
+	--ana:count{count=100,swetime=10}
+	--print ("sweep should be done")
 	ana:close()
 	siggen:close()
 --analyzer.visa  = 'USB0::0x1AB1::0x0960::DSA8A134700019::INSTR'
